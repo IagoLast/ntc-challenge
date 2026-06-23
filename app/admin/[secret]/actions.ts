@@ -16,6 +16,7 @@ function assertSecret(secret: string) {
 function revalidateAll() {
   revalidatePath("/");
   revalidatePath("/participantes");
+  revalidatePath("/subir");
   revalidatePath("/votar");
 }
 
@@ -28,10 +29,11 @@ export async function addParticipant(
 
   const name = data.name.trim();
   if (!name) throw new Error("El nombre es obligatorio");
+  const privateToken = randomUUID();
 
   await sql`
-    INSERT INTO participants (name, image_url, vote_token)
-    VALUES (${name}, ${data.imageUrl}, ${randomUUID()});
+    INSERT INTO participants (name, image_url, vote_token, upload_secret)
+    VALUES (${name}, ${data.imageUrl}, ${privateToken}, ${privateToken});
   `;
 
   revalidateAll();

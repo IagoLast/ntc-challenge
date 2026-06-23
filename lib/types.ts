@@ -3,6 +3,7 @@ export type Participant = {
   name: string;
   image_url: string | null;
   vote_token: string | null;
+  upload_secret: string | null;
   created_at: string;
 };
 

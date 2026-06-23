@@ -26,6 +26,7 @@ export default function RootLayout({
             <nav className="nav">
               <Link href="/">Retos</Link>
               <Link href="/participantes">Participantes</Link>
+              <Link href="/subir">Subir</Link>
               <Link href="/votar">Votar</Link>
             </nav>
           </div>

@@ -79,14 +79,15 @@ export default async function AdminPage({
       </section>
 
       <section className="admin-section card">
-        <h2>Enlaces privados de voto</h2>
+        <h2>Enlaces privados de participante</h2>
         <p className="muted-link">
-          Envía a cada rider solo su enlace. Al abrirlo se guarda su sesión de
-          voto en este navegador.
+          Envía a cada rider solo su enlace. Al abrirlo se guarda su sesión en
+          este navegador para subir vídeos y votar.
         </p>
         <div className="private-links">
           {participants.map((p) => {
-            const path = p.vote_token ? `/votar/${p.vote_token}` : "";
+            const token = p.upload_secret ?? p.vote_token;
+            const path = token ? `/subir/${token}` : "";
             const href = path ? `${origin}${path}` : "";
             return (
               <div key={p.id} className="private-link-row">

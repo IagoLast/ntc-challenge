@@ -29,6 +29,7 @@ export function ensureSchema(): Promise<void> {
           name TEXT NOT NULL,
           image_url TEXT,
           vote_token TEXT,
+          upload_secret TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         );
       `;
@@ -37,8 +38,16 @@ export function ensureSchema(): Promise<void> {
         ADD COLUMN IF NOT EXISTS vote_token TEXT;
       `;
       await sql`
+        ALTER TABLE participants
+        ADD COLUMN IF NOT EXISTS upload_secret TEXT;
+      `;
+      await sql`
         CREATE UNIQUE INDEX IF NOT EXISTS participants_vote_token_idx
         ON participants (vote_token);
+      `;
+      await sql`
+        CREATE UNIQUE INDEX IF NOT EXISTS participants_upload_secret_idx
+        ON participants (upload_secret);
       `;
       await sql`
         CREATE TABLE IF NOT EXISTS challenges (
@@ -91,14 +100,30 @@ export function ensureSchema(): Promise<void> {
         ON votes (trick_id);
       `;
 
+      await sql`
+        UPDATE participants
+        SET vote_token = upload_secret
+        WHERE vote_token IS NULL AND upload_secret IS NOT NULL;
+      `;
+      await sql`
+        UPDATE participants
+        SET upload_secret = vote_token
+        WHERE upload_secret IS NULL AND vote_token IS NOT NULL;
+      `;
+
       const { rows } = await sql<{ id: number }>`
-        SELECT id FROM participants WHERE vote_token IS NULL;
+        SELECT id
+        FROM participants
+        WHERE vote_token IS NULL AND upload_secret IS NULL;
       `;
       for (const participant of rows) {
+        const privateToken = randomUUID();
         await sql`
           UPDATE participants
-          SET vote_token = ${randomUUID()}
-          WHERE id = ${participant.id} AND vote_token IS NULL;
+          SET vote_token = ${privateToken}, upload_secret = ${privateToken}
+          WHERE id = ${participant.id}
+            AND vote_token IS NULL
+            AND upload_secret IS NULL;
         `;
       }
     })().catch((err) => {
@@ -129,10 +154,16 @@ export async function getParticipantByVoteToken(
   const { rows } = await sql<Participant>`
     SELECT *
     FROM participants
-    WHERE vote_token = ${cleanToken}
+    WHERE vote_token = ${cleanToken} OR upload_secret = ${cleanToken}
     LIMIT 1;
   `;
   return rows[0] ?? null;
+}
+
+export async function getParticipantByUploadSecret(
+  uploadSecret: string
+): Promise<Participant | null> {
+  return getParticipantByVoteToken(uploadSecret);
 }
 
 export async function getParticipantScores(): Promise<ParticipantScore[]> {
