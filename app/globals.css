@@ -259,65 +259,91 @@ h3 {
 
 /* Voting */
 .vote-trick-head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
-  gap: 16px;
-  align-items: start;
   margin-bottom: 16px;
 }
 
 .vote-form {
-  background: var(--bg-soft);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-}
-
-.vote-slots {
   display: grid;
-  gap: 8px;
+  gap: 14px;
 }
 
-.vote-slot {
+.voting-submission {
+  position: relative;
+}
+
+.video-shell {
+  position: relative;
+  background: #000;
+}
+
+.vote-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  margin: 0;
-}
-
-.vote-slot-meta {
-  display: flex;
-  align-items: baseline;
   gap: 6px;
-  min-width: 0;
+  z-index: 2;
 }
 
-.vote-slot-meta strong {
-  color: var(--accent-2);
-  font-size: 13px;
+.vote-arrow {
+  min-width: 46px;
+  min-height: 34px;
+  margin: 0;
+  padding: 7px 9px;
+  border: 1px solid rgba(242, 242, 247, 0.2);
+  border-radius: 999px;
+  background: rgba(13, 13, 18, 0.84);
+  color: var(--text);
+  font-size: 12px;
   line-height: 1;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
 }
 
-.vote-slot.negative .vote-slot-meta strong {
-  color: var(--accent);
+.vote-arrow:hover:not(:disabled) {
+  border-color: rgba(255, 210, 61, 0.8);
 }
 
-.vote-slot-meta span {
+.vote-arrow.down:hover:not(:disabled) {
+  border-color: rgba(255, 77, 61, 0.8);
+}
+
+.vote-arrow.selected.up {
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+  color: #18120a;
+}
+
+.vote-arrow.selected.down {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a0a08;
+}
+
+.self-pill {
+  background: rgba(242, 242, 247, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 999px;
   color: var(--muted);
   font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 800;
+  padding: 2px 7px;
   white-space: nowrap;
 }
 
-.vote-form select {
-  padding: 8px 10px;
+.vote-save-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.vote-form button {
-  width: 100%;
-  margin-top: 12px;
+.vote-save-row button {
+  margin-top: 0;
+}
+
+.vote-save-row .feedback {
+  margin: 0;
 }
 
 /* Forms / admin */
@@ -457,7 +483,6 @@ button:disabled {
 }
 
 @media (max-width: 720px) {
-  .vote-trick-head,
   .private-link-row {
     grid-template-columns: 1fr;
   }
