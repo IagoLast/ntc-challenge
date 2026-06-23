@@ -31,6 +31,7 @@ function SubmissionCard({ sub }: { sub: SubmissionWithParticipant }) {
       <div className="who">
         <Avatar src={sub.participant_image} name={sub.participant_name} />
         <span className="who-name">{sub.participant_name}</span>
+        <span className="score-pill">{sub.vote_score} pts</span>
       </div>
     </div>
   );

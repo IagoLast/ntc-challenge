@@ -13,12 +13,16 @@ Hecho con **Next.js** (App Router) y desplegable en **Vercel** usando:
 
 - **`/`** — Portada pública. Lista los retos por semana, sus trucos y los
   vídeos subidos para cada uno.
-- **`/participantes`** — Todos los riders con su foto y número de vídeos.
+- **`/participantes`** — Clasificación total de riders con puntos y vídeos.
+- **`/votar/<TOKEN_PRIVADO>`** — Enlace privado de cada participante. Al abrirlo
+  guarda una cookie de sesión y redirige a `/votar`.
+- **`/votar`** — Papeleta de votos para el participante activo.
 - **`/admin/<ADMIN_SECRET>`** — Panel de administración **secreto** (sin login).
   Es una URL que solo conoces tú; desde ahí puedes:
   - Añadir participantes (nombre + foto).
   - Publicar el reto de la semana con su lista de trucos.
   - Subir vídeos asociándolos a un participante y a un truco.
+  - Copiar el enlace privado de voto de cada participante.
 
 > El panel no tiene autenticación: su seguridad es que la URL es secreta.
 > Pon un `ADMIN_SECRET` largo y difícil de adivinar, y no enlaces esa URL.
@@ -26,14 +30,20 @@ Hecho con **Next.js** (App Router) y desplegable en **Vercel** usando:
 ## Modelo de datos
 
 ```
-participants (id, name, image_url)
+participants (id, name, image_url, vote_token)
 challenges   (id, week_number, title, description)   ← reto semanal
 tricks       (id, challenge_id, name, description)   ← trucos del reto
 submissions  (id, trick_id, participant_id, video_url)
+votes        (id, trick_id, voter_id, target_participant_id, points)
 ```
 
 Las tablas se crean solas la primera vez que se usa la base de datos
 (`CREATE TABLE IF NOT EXISTS`), así que no hace falta migrar a mano.
+
+Cada participante puede votar una vez por truco con una papeleta tipo podio:
+`+3`, `+2`, `+1` y `-1`. No puede votarse a sí mismo y solo puede votar a
+participantes que hayan subido vídeo para ese truco. La página
+`/participantes` muestra la puntuación total acumulada.
 
 ## Puesta en marcha en Vercel
 

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { sql } from "@vercel/postgres";
+import { headers } from "next/headers";
 import { ensureSchema, getParticipants, getChallenges } from "@/lib/db";
 import AdminForms from "./AdminForms";
 
@@ -18,6 +19,14 @@ export default async function AdminPage({
   }
 
   await ensureSchema();
+
+  const headerList = await headers();
+  const host =
+    headerList.get("x-forwarded-host") ?? headerList.get("host") ?? "";
+  const forwardedProtocol = headerList.get("x-forwarded-proto");
+  const protocol =
+    forwardedProtocol ?? (host.startsWith("localhost") ? "http" : "https");
+  const origin = host ? `${protocol}://${host}` : "";
 
   const [participants, challenges] = await Promise.all([
     getParticipants(),
@@ -66,6 +75,32 @@ export default async function AdminPage({
               {p.name}
             </span>
           ))}
+        </div>
+      </section>
+
+      <section className="admin-section card">
+        <h2>Enlaces privados de voto</h2>
+        <p className="muted-link">
+          Envía a cada rider solo su enlace. Al abrirlo se guarda su sesión de
+          voto en este navegador.
+        </p>
+        <div className="private-links">
+          {participants.map((p) => {
+            const path = p.vote_token ? `/votar/${p.vote_token}` : "";
+            const href = path ? `${origin}${path}` : "";
+            return (
+              <div key={p.id} className="private-link-row">
+                <span className="who-name">{p.name}</span>
+                {href ? (
+                  <a href={path} className="private-link">
+                    {href}
+                  </a>
+                ) : (
+                  <span className="empty">Sin token</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
     </>

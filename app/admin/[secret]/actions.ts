@@ -1,6 +1,7 @@
 "use server";
 
 import { sql } from "@vercel/postgres";
+import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { ensureSchema } from "@/lib/db";
 
@@ -15,6 +16,7 @@ function assertSecret(secret: string) {
 function revalidateAll() {
   revalidatePath("/");
   revalidatePath("/participantes");
+  revalidatePath("/votar");
 }
 
 export async function addParticipant(
@@ -28,8 +30,8 @@ export async function addParticipant(
   if (!name) throw new Error("El nombre es obligatorio");
 
   await sql`
-    INSERT INTO participants (name, image_url)
-    VALUES (${name}, ${data.imageUrl});
+    INSERT INTO participants (name, image_url, vote_token)
+    VALUES (${name}, ${data.imageUrl}, ${randomUUID()});
   `;
 
   revalidateAll();
